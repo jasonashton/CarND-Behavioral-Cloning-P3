@@ -79,4 +79,4 @@ Architecture looks like the following (credit NVIDIA):
 
 My two training sets were three laps forward and three laps backwards. Adding any more was making my results worse. Using the Joystick helped making smoother turns.
 
-Preprocessing the data set involves splitting 20% for a validation set. I then read in the images, convert them from BGR to RGB, and apply a shift of 0.7 to the left and right images. The images are then shuffled.
+Preprocessing the data set involves splitting 20% for a validation set. I then read in the images, convert them from BGR to RGB, size the image down by 50% (greatly increased training speed), and apply a shift of 0.7 to the left and right images. The images are then shuffled.
