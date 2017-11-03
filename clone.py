@@ -12,7 +12,7 @@ with open('data/driving_log.csv') as csvfile:
 
 lines = lines[1:] #get rid of header
 
-correction = 0.2 #tune
+correction = 0.7 #tune
 
 from sklearn.model_selection import train_test_split
 train_samples, validation_samples = train_test_split(lines, test_size=0.2)
@@ -30,6 +30,7 @@ def generator(samples, batch_size=32):
                 for i in range(3):
                     current_path = './data/IMG/'+batch_sample[i].split('/')[-1]
                     image = cv2.imread(current_path) #this reads bgr, drive may send RGB
+                    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                     image = cv2.resize(image, (160, 80)) #size down
                     angle = float(batch_sample[3])
                     images.append(image)
@@ -52,7 +53,7 @@ train_generator = generator(train_samples, batch_size=32)
 validation_generator = generator(validation_samples, batch_size=32)
 
 from keras.models import Sequential, Model
-from keras.layers import Flatten, Dense, Lambda, Cropping2D
+from keras.layers import Flatten, Dense, Lambda, Cropping2D, Dropout
 from keras.layers.convolutional import Convolution2D
 from keras.layers.pooling import MaxPooling2D
 
@@ -65,7 +66,8 @@ model.add(Convolution2D(24, 5, 5, subsample=(2,2), activation="relu"))
 model.add(Convolution2D(36, 5, 5, subsample=(2,2), activation="relu"))
 model.add(Convolution2D(48, 5, 5, subsample=(2,2), activation="relu"))
 model.add(Convolution2D(64, 3, 3, activation="relu"))
-#model.add(Conv2D(64, 3, 3, padding="same", activation="relu"))
+#model.add(Convolution2D(64, 3, 3, activation="relu"))
+model.add(Dropout(0.7)) #tune
 model.add(Flatten())
 model.add(Dense(100))
 model.add(Dense(50))
@@ -76,7 +78,7 @@ model.add(Dense(1))
 model.compile(loss='mse', optimizer='adam')
 model.fit_generator(train_generator, samples_per_epoch = \
                 len(train_samples), validation_data=validation_generator, \
-                nb_val_samples=len(validation_samples), nb_epoch=3)
+                nb_val_samples=len(validation_samples), nb_epoch=5)
 
 model.save('model.h5')
 exit()
